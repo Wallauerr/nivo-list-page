@@ -5,8 +5,13 @@ import {
   ChevronsRight,
 } from 'lucide-react'
 
-import { Button } from './ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select'
+import { Button } from '../components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from '../components/ui/select'
 
 export function Pagination() {
   return (
@@ -29,19 +34,19 @@ export function Pagination() {
         <span>Page 1 of 10</span>
 
         <div className="space-x-1.5">
-          <Button onClick={firstPage} size="icon" disabled={page - 1 <= 0}>
+          <Button size="icon">
             <ChevronsLeft className="size-4" />
             <span className="sr-only">First page</span>
           </Button>
-          <Button onClick={previousPage} size="icon" disabled={page - 1 <= 0}>
+          <Button size="icon">
             <ChevronLeft className="size-4" />
             <span className="sr-only">Previous page</span>
           </Button>
-          <Button onClick={nextPage} size="icon" disabled={page + 1 > pages}>
+          <Button size="icon">
             <ChevronRight className="size-4" />
             <span className="sr-only">Next page</span>
           </Button>
-          <Button onClick={lastPage} size="icon" disabled={page + 1 > pages}>
+          <Button size="icon">
             <ChevronsRight className="size-4" />
             <span className="sr-only">Last page</span>
           </Button>
