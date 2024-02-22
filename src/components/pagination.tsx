@@ -5,6 +5,7 @@ import {
   ChevronsRight,
 } from 'lucide-react'
 
+import { useSearchParams } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import {
   Select,
@@ -20,6 +21,48 @@ interface PaginationProps {
 }
 
 export function Pagination({ items, page, pages }: PaginationProps) {
+  const [, setSearchParams] = useSearchParams()
+
+  function firstPage() {
+    setSearchParams((params) => {
+      params.set('page', '1')
+
+      return params
+    })
+  }
+
+  function previousPage() {
+    if (page - 1 <= 0) {
+      return
+    }
+
+    setSearchParams((params) => {
+      params.set('page', String(page - 1))
+
+      return params
+    })
+  }
+
+  function nextPage() {
+    if (page + 1 > pages) {
+      return
+    }
+
+    setSearchParams((params) => {
+      params.set('page', String(page + 1))
+
+      return params
+    })
+  }
+
+  function lastPage() {
+    setSearchParams((params) => {
+      params.set('page', String(pages))
+
+      return params
+    })
+  }
+
   return (
     <div className="flex text-sm items-center justify-between text-zinc-500">
       <span>Showing 10 of {items} items</span>
@@ -42,19 +85,19 @@ export function Pagination({ items, page, pages }: PaginationProps) {
         </span>
 
         <div className="space-x-1.5">
-          <Button size="icon">
+          <Button onClick={firstPage} size="icon">
             <ChevronsLeft className="size-4" />
             <span className="sr-only">First page</span>
           </Button>
-          <Button size="icon">
+          <Button onClick={previousPage} size="icon">
             <ChevronLeft className="size-4" />
             <span className="sr-only">Previous page</span>
           </Button>
-          <Button size="icon">
+          <Button onClick={nextPage} size="icon">
             <ChevronRight className="size-4" />
             <span className="sr-only">Next page</span>
           </Button>
-          <Button size="icon">
+          <Button onClick={lastPage} size="icon">
             <ChevronsRight className="size-4" />
             <span className="sr-only">Last page</span>
           </Button>
