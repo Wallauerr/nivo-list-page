@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react'
+import { Check, Loader2, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -6,33 +6,57 @@ import { Button } from './ui/button'
 import * as Dialog from '@radix-ui/react-dialog'
 
 const createTagSchema = z.object({
-  name: z.string().min(3, { message: 'Minimum 3 characters' }),
-  slug: z.string(),
+  title: z.string().min(3, { message: 'Minimum 3 characters' }),
 })
 
 type CreateTagSchema = z.infer<typeof createTagSchema>
 
-export function CreateTagForm() {
-  const { register, handleSubmit } = useForm<CreateTagSchema>({
-    resolver: zodResolver(createTagSchema),
-  })
+function getSlugFromString(input: string): string {
+  return input
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, '-')
+}
 
-  function createTag(data: CreateTagSchema) {
-    console.log(data)
+export function CreateTagForm() {
+  const { register, handleSubmit, watch, formState } = useForm<CreateTagSchema>(
+    {
+      resolver: zodResolver(createTagSchema),
+    },
+  )
+
+  const slug = watch('title') ? getSlugFromString(watch('title')) : ''
+
+  async function createTag({ title }: CreateTagSchema) {
+    await fetch('http://localhost:3333/tags', {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        slug,
+        amountOfVideos: 0,
+      }),
+    })
   }
 
   return (
     <form onSubmit={handleSubmit(createTag)} className="w-full space-y-6">
       <div className="space-y-2">
-        <label className="text-sm font-medium block" htmlFor="name">
+        <label className="text-sm font-medium block" htmlFor="title">
           Tag name
         </label>
         <input
-          {...register('name')}
+          {...register('title')}
           className="border border-zinc-800 rounded-lg px-3 py-2.5 bg-zinc-800/50 w-full text-sm"
           id="name"
           type="text"
         />
+        {formState.errors?.title && (
+          <p className="text-sm text-red-400">
+            {formState.errors.title.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -40,10 +64,10 @@ export function CreateTagForm() {
           Slug
         </label>
         <input
-          {...register('slug')}
           className="border border-zinc-800 rounded-lg px-3 py-2.5 bg-zinc-800/50 w-full text-sm"
           id="slug"
           type="text"
+          value={slug}
           readOnly
         />
       </div>
@@ -55,8 +79,16 @@ export function CreateTagForm() {
             Cancel
           </Button>
         </Dialog.Close>
-        <Button className="bg-teal-400 text-teal-950" type="submit">
-          <Check className="size-3" />
+        <Button
+          disabled={formState.isSubmitting}
+          className="bg-teal-400 text-teal-950"
+          type="submit"
+        >
+          {formState.isSubmitting ? (
+            <Loader2 className="size-3 animate-spin" />
+          ) : (
+            <Check className="size-3" />
+          )}
           Save
         </Button>
       </div>
